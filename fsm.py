@@ -80,7 +80,7 @@ class FSM(object):
                         break
                     func = self.state_routine_map[self.current_state][1]
                     if self.old_state != self.current_state:
-                        self.fsm_logger.info("FSM: " + func.__name__)
+                        self.fsm_logger.info("FSM: " )
                     next_state = func()
                     self.old_state = self.current_state
                     if self.new_requested_state is None:

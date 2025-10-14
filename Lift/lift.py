@@ -11,22 +11,34 @@ import json
 STATE_FILE = "data/shared_state.json"
 # to do 
 # step 1  :-make three function like idel wait and move hadler 
-class Lift:
+class Lift(FSM):
     def __init__(self, total_floors: int):
         self.idele="IDELE"
         self.moving_up="MOVING-UP"
         self.sleeping="SLEEPING"
         self.moving_down="MOVING-DOWN"
         self.waiting="WAITING"
+        self.state=""
+
+
         self.current_floor = 0
         self.total_floors = total_floors
         self.list_floor = {}
         self.lock = threading.Lock()
         self.logger= setup_logger("lift")
  
-        self.state=""
       
-    print("inside the left class")
+        super().__init__(name="liftFSM", robot_obj=self, logger=self.logger)
+
+        self.add_state("IDLE", "IDLE", lambda: self.idle_state(fsm))
+        self.add_state("MOVING_UP", "MOVING_UP", lambda: self.moving_up_state())
+        self.add_state("MOVING_DOWN", "MOVING_DOWN", lambda: self.moving_down_state())
+        self.add_state("WAITING", "WAITING", lambda: self.waiting_state())
+        self.add_state("SLEEPING", "SLEEPING", lambda: self.sleep_state())
+        self.set_current_state("IDLE")
+        self.start_fsm_thread()
+      
+   
     def add_request(self, floor, direction=None,fsm=None):
        
         with self.lock:
@@ -41,8 +53,7 @@ class Lift:
                 self.logger.error(f"Lift Invalid floor {floor}")
 
         
-
-    def idle_state(self,fsm=None):
+    def idle_state(self):
         self.state = self.idele
         self.logger.info(f"State: IDLE | Current floor: {self.current_floor}")
         if self.list_floor:
@@ -51,20 +62,15 @@ class Lift:
                 return "MOVING_UP"
             elif next_floor < self.current_floor:
                 return "MOVING_DOWN"
-       
-        
-       
-        self.sleep_state(fsm)
+        self.sleep_fsm() 
+        return "SLEEPING"
+    
+    
 
-            
-        time.sleep(1)
-        return "IDLE"
-
-    def sleep_state(self,fsm):
-        # lift = fsm.robot_obj7
-        self.logger.info(f"State: Sleep | Current floor: {self.current_floor} fsm in sleep mode")
+    def sleep_state(self):
         self.state = self.sleeping
-        fsm.sleep_fsm()
+        self.logger.info(f"State: SLEEPING | Current floor: {self.current_floor}")
+        self.sleep_fsm() 
         return "SLEEPING"
 
     def moving_up_state(self):
@@ -125,18 +131,21 @@ class Lift:
         return "MOVING_DOWN" if next_floor < self.current_floor else "MOVING_UP"
 
 
+    
     def waiting_state(self):
-        # lift = fsm.robot_obj
         self.state = self.waiting
         self.logger.info(f"Waiting at floor {self.current_floor}")
+        time.sleep(2)
         if self.list_floor:
             next_floor = next(iter(self.list_floor))
             if next_floor > self.current_floor:
                 return "MOVING_UP"
             elif next_floor < self.current_floor:
                 return "MOVING_DOWN"
-        time.sleep(2)
         return "IDLE"
+    
+
+    
     def return_to_ground_floor(self):
         self.add_request(0)
 

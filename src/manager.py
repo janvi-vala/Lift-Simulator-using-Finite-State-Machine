@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from src.lift import Lift
 from fastapi import HTTPException,status
 from utils.logger import setup_logger
-import utils.settings as settings
 
 
 load_dotenv()

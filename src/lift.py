@@ -1,12 +1,9 @@
 
-
-
-
 import threading
 import time
 from utils.logger import setup_logger
 from fsm import FSM
-import utils.settings as settings
+
 
 
 class Lift(FSM):

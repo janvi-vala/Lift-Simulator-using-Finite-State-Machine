@@ -24,7 +24,7 @@ def add_request(floor, direction=None,fsm=None):
                 
                 if floor not in lift.list_floor and lift.current_state != "EMERGENCY":
                     lift.list_floor[floor] = direction
-                elif settings.FLAG_EMERGANCY == True :
+                elif lift.FLAG_RESUME == True :
                      lift.logger.info(f"first Resume lift first")
                      return {"status":"Failure","detail":"First resume the lift"}
                 
@@ -57,7 +57,7 @@ def emergency(emergency_flag: bool):
             raise RuntimeError("Lift instance not initialized")
 
         # lift.list_floor = {}
-        settings.FLAG_EMERGANCY=True
+        lift.FLAG_RESUME=True
         lift.logger.info("Emergency mode activated.")
 
         return {"status": "success", "message": "Lift is entered in the emergency mode"}
@@ -66,18 +66,6 @@ def emergency(emergency_flag: bool):
         logger.exception("Error in emergency function: {}".format(str(e)))
         raise HTTPException(status_code=500, detail=f"Emergency activation failed: {e}")
 
-
-# def resume(flag):
-#     print("state-->",lift.state,lift.state==lift.emergency)
-#     # if lift.state == lift.emergency:
-     
-    
-#     lift.set_current_state(lift.resume)
-    
-#     lift.logger.info("lift's resume button is click **")
-#     lift.list_floor={}
-#     lift.wake_up()
-   
 def resume(flag: bool):
     try:
         if not flag:
@@ -94,7 +82,7 @@ def resume(flag: bool):
             return {"status": "warning", "message": "lIFT IS NOT IN EMERGENCY SO RESUME IS IGNORE"}
         
         lift.list_floor = {}
-        settings.FLAG_RESUME=True
+        lift.FLAG_RESUME=True
       
 
         lift.logger.info("Lift resumed from emergency.")

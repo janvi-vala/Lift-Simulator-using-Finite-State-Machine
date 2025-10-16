@@ -23,7 +23,7 @@ def add_request(floor, direction=None,fsm=None):
                 
                 if floor not in lift.list_floor and lift.current_state != "EMERGENCY":
                     lift.list_floor[floor] = direction
-                elif lift.FLAG_RESUME == True :
+                elif lift.FLAG_EMERGANCY == True :
                      lift.logger.info(f"first Resume lift first")
                      return {"status":"Failure","detail":"First resume the lift"}
                 
@@ -55,8 +55,8 @@ def emergency(emergency_flag: bool):
         if lift is None:
             raise RuntimeError("Lift instance not initialized")
 
-        # lift.list_floor = {}
-        lift.FLAG_RESUME=True
+        lift.wake_up()
+        lift.FLAG_EMERGANCY=True
         lift.logger.info("Emergency mode activated.")
 
         return {"status": "success", "message": "Lift is entered in the emergency mode"}
